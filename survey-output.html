@@ -1,0 +1,133 @@
+<div id="survey-results-box">
+  
+
+    <style>
+        table {
+            width: 80%;
+            margin: 20px auto 100px auto;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+      #survey-results-box {
+    font-size: 1rem;
+}
+
+#survey-results-box button {
+    margin: 1em 0;
+    padding: .5rem 1rem;
+    font-size: 1.25rem;
+}
+
+#survey-results-box table tr td {
+    border-left: 1px #eee solid
+}
+    </style>
+
+    <h1>Survey Results</h1>
+  <button onclick="downloadCSV()">Download CSV</button>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Question1</th>
+                <th>Question2</th>
+                <th>Question3</th>
+                <th>Question4</th>
+                <th>Question5</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+
+    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore-compat.js"></script>
+    <script>
+        // Initialize Firebase with your configuration object
+        const firebaseConfig = {
+
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        // Get a reference to Firestore
+        const db = firebase.firestore();
+
+        // Reference the table body
+        const tableBody = document.getElementById('tableBody');
+
+        // Function to render survey data in the table
+        function renderSurveyData(doc) {
+            const tr = document.createElement('tr');
+            const nameTd = document.createElement('td');
+            const question1Td = document.createElement('td');
+            const question2Td = document.createElement('td');
+            const question3Td = document.createElement('td');
+            const question4Td = document.createElement('td');
+            const question5Td = document.createElement('td');
+            const timestampTd = document.createElement('td');
+
+            nameTd.textContent = doc.data().name;
+            question1Td.textContent = doc.data().Question1;
+            question2Td.textContent = doc.data().Question2;
+            question3Td.textContent = doc.data().Question3.join(' | ');
+            question4Td.textContent = doc.data().Question4;
+            question5Td.textContent = doc.data().Question5;
+            
+            const timestamp = doc.data().timestamp.toDate();
+            timestampTd.textContent = timestamp.toDateString() + ' ' + timestamp.toTimeString();
+            
+            tr.appendChild(nameTd);
+            tr.appendChild(question1Td);
+            tr.appendChild(question2Td);
+            tr.appendChild(question3Td);
+            tr.appendChild(question4Td);
+            tr.appendChild(question5Td);
+            tr.appendChild(timestampTd);
+
+            tableBody.appendChild(tr);
+        }
+
+        // Fetch survey data from Firestore and render it in the table
+        db.collection('surveyResponses').orderBy('timestamp', 'desc').get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    renderSurveyData(doc);
+                });
+            })
+            .catch((error) => {
+                console.error('Error getting documents: ', error);
+                alert('An error occurred while fetching survey data.');
+            });
+              // Function to download CSV
+        function downloadCSV() {
+            const data = [];
+            const headers = ['Name', 'Question1', 'Question2', 'Question3', 'Question4', 'Question5', 'Timestamp'];
+            data.push(headers);
+
+            tableBody.querySelectorAll('tr').forEach((row) => {
+                const rowData = [];
+                row.querySelectorAll('td').forEach((cell) => {
+                    rowData.push(cell.textContent);
+                });
+                data.push(rowData);
+            });
+
+            const csvContent = data.map((row) => row.join(',')).join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'survey_results.csv';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+    </script>
+
+</div>

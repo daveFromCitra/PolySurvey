@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .form-builder {
+            margin: 20px;
+            border: 1px solid #ccc;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-builder">
+        <h2>Form Builder</h2>
+        <form id="customForm">
+            <div>
+                <label for="elementType">Select Element Type:</label>
+                <select id="elementType">
+                    <option value="text">Text Input</option>
+                    <option value="textarea">Textarea</option>
+                    <option value="dropdown">Dropdown</option>
+                    <option value="checkbox">Checkbox</option>
+                </select>
+            </div>
+            <div>
+                <label for="elementLabel">Label:</label>
+                <input type="text" id="elementLabel">
+            </div>
+            <div id="optionsField">
+                <label for="elementOptions">Options (comma-separated):</label>
+                <input type="text" id="elementOptions">
+            </div>
+            <button type="button" id="addElement">Add Element</button>
+        </form>
+    </div>
+
+    <div id="preview">
+        <h2>Form Preview</h2>
+        <form id="generatedForm"></form>
+    </div>
+
+    <script>
+        const form = document.getElementById('customForm');
+        const elementType = document.getElementById('elementType');
+        const elementLabel = document.getElementById('elementLabel');
+        const elementOptions = document.getElementById('elementOptions');
+        const addElementButton = document.getElementById('addElement');
+        const generatedForm = document.getElementById('generatedForm');
+
+        addElementButton.addEventListener('click', () => {
+            const type = elementType.value;
+            const label = elementLabel.value;
+
+            if (!label) {
+                alert('Please enter a label for the form element.');
+                return;
+            }
+
+            const element = document.createElement(type === 'textarea' ? 'textarea' : 'input');
+
+            if (type === 'dropdown') {
+                const options = elementOptions.value.split(',');
+                options.forEach(option => {
+                    const optionElement = document.createElement('option');
+                    optionElement.text = option.trim();
+                    element.appendChild(optionElement);
+                });
+            } else if (type === 'checkbox') {
+                element.setAttribute('type', 'checkbox');
+            } else {
+                element.setAttribute('type', 'text');
+            }
+
+            element.setAttribute('name', label);
+            element.setAttribute('placeholder', label);
+
+            const labelElement = document.createElement('label');
+            labelElement.innerText = label;
+            labelElement.appendChild(element);
+
+            generatedForm.appendChild(labelElement);
+
+            elementLabel.value = '';
+            elementOptions.value = '';
+        });
+    </script>
+</body>
+</html>
+

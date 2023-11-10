@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dynamic Form Data to Console</title>
+    <style>
+        .main-return {
+            display: flex;
+        }
+
+        #preview-area {
+            border: 1px solid #111;
+            border-radius: 5px;
+            margin: 1rem;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <form id="myForm">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="campaign">Campaign:</label>
+        <input type="text" id="campaign" name="campaign" required><br><br>
+
+        
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required><br><br>
+        
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" required><br><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+    <hr>
+    <div class="main-return">
+        <div>
+            <label for="input-section">HTML Input Form</label><br>
+            <textarea name="input-section" id="input-section" cols="50" rows="20"></textarea>
+            <br>
+            <label for="output-section">HTML Output Area</label><br>
+            <textarea name="output-section" id="output-section" cols="50" rows="20"></textarea>
+            <br>
+            <label for="url-section">URL</label>
+            <input type="text" name="url-section" id="url-section">
+        </div>
+        <div id="preview-area"></div>
+    </div>
+
+    <script>
+        // Function to handle the form submission
+        document.getElementById("myForm").addEventListener("submit", function(event) {
+            event.preventDefault(); // Prevent the form from actually submitting
+
+            // Get form data as an object with dynamic keys
+            const formData = {};
+            const formElements = document.getElementById("myForm").elements;
+            
+            for (let i = 0; i < formElements.length; i++) {
+                const element = formElements[i];
+                if (element.name) {
+                    formData[element.name] = element.value;
+                }
+            }
+
+            // Log the form data to the console
+            builder(formData)
+        });
+
+        function builder(data) {
+            const inputSection = document.getElementById("input-section")
+            const previewSection = document.getElementById("preview-area")
+
+            const inputRender = `<h1>${data.name}</h1>
+${data.campaign} <input type="text">, 
+Email: ${data.email} <input type="text">, 
+Age: ${data.age} <input type="text">`
+            inputSection.value = inputRender;
+            previewSection.innerHTML = inputRender
+        }
+    </script>
+</body>
+</html>

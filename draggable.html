@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    /* Styling for the draggable elements */
+    .draggable {
+      width: 100px;
+      height: 100px;
+      background-color: #3498db;
+      color: #fff;
+      text-align: center;
+      line-height: 100px;
+      margin: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* Styling for the drop area */
+    .drop-area {
+      width: 300px;
+      height: 300px;
+      background-color: #ecf0f1;
+      border: 2px dashed #bdc3c7;
+    }
+  </style>
+</head>
+<body>
+<button onclick="talk()">Speak</button>
+<div class="draggable" id="item1" draggable="true" onclick="dragVClick()">Item 1</div>
+<div class="draggable" id="item2" draggable="true">Item 2</div>
+<div class="draggable" id="item3" draggable="true">Item 3</div>
+<div class="draggable" id="item4" draggable="true">Item 55</div>
+
+
+<div class="drop-area" id="dropArea">Drop here to add to the array</div>
+
+<script>
+  const draggableItems = document.querySelectorAll('.draggable');
+  const dropArea = document.getElementById('dropArea');
+  const addedItems = [];
+
+  draggableItems.forEach(item => {
+    item.addEventListener('dragstart', (e) => {
+      e.dataTransfer.setData('text/plain', e.target.id);
+    });
+  });
+
+  dropArea.addEventListener('dragover', (e) => {
+    e.preventDefault();
+  });
+
+  dropArea.addEventListener('drop', (e) => {
+    e.preventDefault();
+    const itemId = e.dataTransfer.getData('text/plain');
+    const item = document.getElementById(itemId);
+    if (item) {
+      addedItems.push(item.textContent);
+      updateArrayDisplay();
+    }
+  });
+
+  function updateArrayDisplay() {
+    console.log(addedItems);
+    const arrayDisplay = document.getElementById('arrayDisplay');
+    if (arrayDisplay) {
+      arrayDisplay.innerHTML = addedItems.join(', ');
+    }
+  }
+
+  function dragVClick() {
+    console.log("Clicked");
+  }
+
+  function talk() {
+    var message = new SpeechSynthesisUtterance();
+    // Set the text you want to convert to speech
+    message.text = "Hello, this is a text-to-speech example.";
+    console.log("Web to speech works");
+    // Optional: Set the voice and other parameters
+    message.voice = speechSynthesis.getVoices()[0];
+    // Speak the text
+    window.speechSynthesis.speak(message);
+  }
+
+</script>
+
+<p>Added items: <span id="arrayDisplay"></span></p>
+
+</body>
+</html>

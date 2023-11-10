@@ -1,0 +1,146 @@
+<h1>Simple Survey</h1>
+<form id="surveyForm">
+
+    <p>1. Do you think the existing government is going in the right direction to benefit the people of our community?</p>
+    <label><input type="radio" name="q1" value="Yes"> Yes</label>
+    <label><input type="radio" name="q1" value="No"> No</label>
+    <br>
+    <p>2. How likely are you to vote in the coming elections?</p>
+    <label><input type="radio" name="q2" value="Certain to vote"> Certain to vote</label>
+    <label><input type="radio" name="q2" value="Most likely to vote"> Most likely to vote</label>
+    <label><input type="radio" name="q2" value="Probably won’t vote"> Probably won’t vote</label>
+    <label><input type="radio" name="q2" value="Skip the primary elections"> Skip the primary elections</label>
+    <label><input type="radio" name="q2" value="Don’t know"> Don’t know</label>
+    <label><input type="radio" name="q2" value="I won’t vote"> I won’t vote</label>
+    <br>
+    <p>3. On what basis do you assess a political candidate?</p>
+    <label><input type="checkbox" name="q3[]" value="News on TV"> News on TV</label><br>
+    <label><input type="checkbox" name="q3[]" value="Articles in the newspapers"> Articles in the newspapers</label><br>
+    <label><input type="checkbox" name="q3[]" value="Attend events where the candidate is addressing the people"> Attend events where the candidate is addressing the people</label><br>
+    <label><input type="checkbox" name="q3[]" value="I research all the channels before making my choice"> I research all the channels before making my choice</label><br>
+    <label><input type="checkbox" name="q3[]" value="Number of fundraisers the candidate has done in your area"> Number of fundraisers the candidate has done in your area</label><br>
+    <label><input type="checkbox" name="q3[]" value="The family upbringing of the candidate"> The family upbringing of the candidate</label><br>
+    <label><input type="checkbox" name="q3[]" value="Other"> Other</label><br>
+<br>
+    <p>4. How do you describe yourself as?</p>
+    <select name="q4">
+        <option value="Democrat">Democrat</option>
+        <option value="Independent">Independent</option>
+        <option value="Republican">Republican</option>
+        <option value="Something else">Something else</option>
+        <option value="Don’t know">Don’t know</option>
+    </select>
+    <br>
+    <p>5. Do you have any issues or queries that you would want to be addressed by the political party you support?</p>
+    <textarea name="q5" rows="4" cols="50"></textarea><br>
+    <br>
+    <button type="submit">Submit</button>
+</form>
+
+<script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore-compat.js"></script>
+<script>
+
+function getFormResults() {
+    const formResults = {};
+
+    // Question 1
+    const q1Value = document.querySelector('input[name="q1"]:checked');
+    if (q1Value) {
+        formResults["Question1"] = q1Value.value;
+    }
+
+    // Question 2
+    const q2Value = document.querySelector('input[name="q2"]:checked');
+    if (q2Value) {
+        formResults["Question2"] = q2Value.value;
+    }
+
+    // Question 3
+    const q3Values = [];
+    const q3Checkboxes = document.querySelectorAll('input[name="q3[]"]:checked');
+    q3Checkboxes.forEach((checkbox) => {
+        q3Values.push(checkbox.value);
+    });
+    formResults["Question3"] = q3Values;
+
+    // Question 4
+    const q4Value = document.querySelector('select[name="q4"]').value;
+    formResults["Question4"] = q4Value;
+
+    // Question 5
+    const q5Value = document.querySelector('textarea[name="q5"]').value;
+    formResults["Question5"] = q5Value;
+
+    return formResults;
+}
+
+    function getParameterByName(name, url = window.location.href) {
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+    // Initialize Firebase with your configuration object
+    const firebaseConfig = {
+
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    // Get a reference to Firestore
+    const db = firebase.firestore();
+
+    // Reference the form
+    const surveyForm = document.getElementById('surveyForm');
+
+    // Handle form submission
+    surveyForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Get user inputs
+        const name = getParameterByName("id");
+        const surveyResults = getFormResults()
+
+
+        // Add the survey response to Firestore
+        db.collection('surveyResponses').add({
+            name,
+            Question1: surveyResults.Question1,
+            Question2: surveyResults.Question2,
+            Question3: surveyResults.Question3,
+            Question4: surveyResults.Question4,
+            Question5: surveyResults.Question5,
+            timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        })
+            .then(() => {
+                alert('Survey response submitted successfully!');
+                surveyForm.reset();
+            })
+            .catch((error) => {
+                console.error('Error adding document: ', error);
+                alert('An error occurred while submitting the survey response.');
+            });
+    });
+
+</script>
+<style>
+#surveyForm {
+    font-size: 1.25rem;
+}
+#surveyForm label {
+   display: block;
+}
+
+#surveyForm input {
+    font-size: 1.25rem;
+    padding: .25rem;
+}
+
+#surveyForm button {
+    padding: .5rem 1rem;
+    font-size: 1.25rem;
+}
+</style>

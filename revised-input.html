@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Firestore Form</title>
+    <!-- Add the Firebase JavaScript SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <h2>${data.surveyName}</h2>
+    <form id="dataForm">
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" required><br>
+
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required><br>
+
+        <label for="message">Message:</label>
+        <textarea name="message" id="message" rows="4" required></textarea><br>
+
+        <label for="dropdown">Select an option:</label>
+        <select name="dropdown" id="dropdown">
+            <option value="option1">Option 1</option>
+            <option value="option2">Option 2</option>
+            <option value="option3">Option 3</option>
+        </select><br>
+
+        <label>Choose one or more options:</label><br>
+        <input type="checkbox" name="options" value="Option 1" id="checkbox1">
+        <label for="checkbox1">Option 1</label><br>
+
+        <input type="checkbox" name="options" value="Option 2" id="checkbox2">
+        <label for="checkbox2">Option 2</label><br>
+
+        <input type="checkbox" name="options" value="Option 3" id="checkbox3">
+        <label for="checkbox3">Option 3</label><br>
+
+        <button type="submit">Submit</button>
+    </form>
+
+    <script>
+        function getParameterByName(name, url = window.location.href) {
+            name = name.replace(/[\[\]]/g, '\\$&');
+            var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                results = regex.exec(url);
+            if (!results) return null;
+            if (!results[2]) return '';
+            return decodeURIComponent(results[2].replace(/\+/g, ' '));
+        }
+
+        const firebaseConfig = {
+
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        document.getElementById("dataForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(e.target);
+            const data = {};
+
+            formData.forEach((value, key) => {
+                if (data[key]) {
+                    if (!Array.isArray(data[key])) {
+                        data[key] = [data[key]];
+                    }
+                    data[key].push(value);
+                } else {
+                    data[key] = value;
+                }
+            });
+
+
+            const name = data.name;
+
+
+            db.collection("formData").doc(name).set(data)
+                .then(function () {
+                    console.log("Data saved to Database");
+
+                    e.target.reset();
+                })
+                .catch(function (error) {
+                    console.error("Error adding document: ", error);
+                });
+        });
+    </script>
+</body>
+</html>

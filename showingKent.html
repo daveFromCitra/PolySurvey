@@ -1,0 +1,64 @@
+<head>
+    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.5.0/firebase-firestore-compat.js"></script>
+    </head>
+        <body>
+            <h1>Test Survey</h1>
+            <form id="dataForm">
+                
+    <label for="your_name">Your Name:</label>
+    <input type="text" name="your_name" id="your_name" required><br>
+    <label for="favorite_color">Favorite Color:</label>
+    <input type="text" name="favorite_color" id="favorite_color" required><br>
+                <button type="submit">Submit</button>
+            </form>
+            <script>
+            function getParameterByName(name, url = window.location.href) {
+                name = name.replace(/[\[\]]/g, '\\$&');
+                var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+                    results = regex.exec(url);
+                if (!results) return null;
+                if (!results[2]) return '';
+                return decodeURIComponent(results[2].replace(/\+/g, ' '));
+            }
+    
+            const firebaseConfig = {
+
+            };
+    
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+    
+            document.getElementById("dataForm").addEventListener("submit", function (e) {
+                e.preventDefault();
+    
+                const formData = new FormData(e.target);
+                const data = {};
+    
+                formData.forEach((value, key) => {
+                    if (data[key]) {
+                        if (!Array.isArray(data[key])) {
+                            data[key] = [data[key]];
+                        }
+                        data[key].push(value);
+                    } else {
+                        data[key] = value;
+                    }
+                });
+    
+    
+                const name = data.name;
+    
+    
+                db.collection("test_survey").doc(name).set(data)
+                    .then(function () {
+                        console.log("Data saved to Database");
+    
+                        e.target.reset();
+                    })
+                    .catch(function (error) {
+                        console.error("Error adding document: ", error);
+                    });
+            });
+        </script>
+        </body>
